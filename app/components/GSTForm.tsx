@@ -9,10 +9,34 @@ interface GSTFormProps {
 export default function GSTForm({ onNext }: GSTFormProps) {
   const [gstNumber, setGstNumber] = useState("");
   const [isRegistered, setIsRegistered] = useState(true);
+  const [error, setError] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Only validate GST if the user has a registered business
+    if (isRegistered) {
+      if (!gstNumber.trim()) {
+        setError("GST number is required.");
+        return;
+      }
+      if (gstNumber.length !== 15) {
+        setError("GST number must be exactly 15 characters long.");
+        return;
+      }
+      if (!/^[A-Z0-9]+$/.test(gstNumber)) {
+        setError("GST number must contain only uppercase letters and numbers.");
+        return;
+      }
+    }
+
+    setError(""); // Clear any errors
     onNext({ gstNumber, isRegistered });
+  };
+
+  const handleGstNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "");
+    setGstNumber(value);
   };
 
   return (
@@ -24,50 +48,74 @@ export default function GSTForm({ onNext }: GSTFormProps) {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* GST Input */}
           <div className="space-y-4">
-            <label htmlFor="gst" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="gst"
+              className="block text-sm font-medium text-gray-700"
+            >
               Enter your GST number
             </label>
             <input
               id="gst"
               type="text"
               value={gstNumber}
-              onChange={(e) => setGstNumber(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              required
+              onChange={handleGstNumberChange}
+              className={`w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none 
+                          ${
+                            isRegistered
+                              ? "focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                              : "bg-gray-200 cursor-not-allowed"
+                          }`}
+              disabled={!isRegistered}
+              required={isRegistered}
             />
+            {error && <p className="text-red-500 text-sm">{error}</p>}
           </div>
 
-          <div className="space-y-2">
+          {/* Radio Buttons */}
+          <div className="space-y-3">
             <div className="flex items-center space-x-2">
               <input
                 type="radio"
                 id="registered"
                 checked={isRegistered}
                 onChange={() => setIsRegistered(true)}
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                className="peer hidden"
               />
+              <div className="h-4 w-4 border border-gray-300 rounded-full flex items-center justify-center peer-checked:border-black peer-checked:ring-2 peer-checked:ring-black">
+                <div className="h-2 w-2 bg-black rounded-full peer-checked:block hidden"></div>
+              </div>
               <label htmlFor="registered" className="text-sm text-gray-700">
                 I have a registered business
               </label>
             </div>
+
             <div className="flex items-center space-x-2">
               <input
                 type="radio"
                 id="unregistered"
                 checked={!isRegistered}
-                onChange={() => setIsRegistered(false)}
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                onChange={() => {
+                  setIsRegistered(false);
+                  setGstNumber(""); // Clear GST input when switching to unregistered
+                  setError(""); // Clear error messages
+                }}
+                className="peer hidden"
               />
-              <label htmlFor="unregistered" className="text-sm text-gray-700">
+              <div className="h-4 w-4 border border-gray-300 rounded-full flex items-center justify-center peer-checked:border-black peer-checked:ring-2 peer-checked:ring-black">
+                <div className="h-2 w-2 bg-black rounded-full peer-checked:block hidden"></div>
+              </div>
+              <label htmlFor="unregistered" className="text-sm tsext-gray-700">
                 I don't have a registered business
               </label>
             </div>
           </div>
 
+          {/* Submit Button */}
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            className="w-full bg-black text-white py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
           >
             Next
           </button>

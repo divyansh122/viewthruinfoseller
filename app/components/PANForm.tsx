@@ -1,6 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 interface PANFormProps {
   onNext: (panData: { panNumber: string; isRegistered: boolean }) => void;
@@ -10,10 +14,25 @@ interface PANFormProps {
 export default function PANForm({ onNext, onBack }: PANFormProps) {
   const [panNumber, setPanNumber] = useState("");
   const [isRegistered, setIsRegistered] = useState(true);
+  const [error, setError] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    // PAN number validation
+    const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+    if (!panRegex.test(panNumber)) {
+      setError("Please enter a valid PAN number.");
+      return;
+    }
+
+    setError("");
     onNext({ panNumber, isRegistered });
+  };
+
+  const handlePanNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "");
+    setPanNumber(value);
   };
 
   return (
@@ -26,60 +45,26 @@ export default function PANForm({ onNext, onBack }: PANFormProps) {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-4">
-            <label htmlFor="pan" className="block text-sm font-medium text-gray-700">
-              Enter your PAN number
-            </label>
-            <input
+            <Label htmlFor="pan">Enter your PAN number</Label>
+            <Input
               id="pan"
               type="text"
               value={panNumber}
-              onChange={(e) => setPanNumber(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              onChange={handlePanNumberChange}
+              className="w-full"
               required
+              maxLength={10} // PAN numbers are exactly 10 characters long
             />
-          </div>
-
-          <div className="space-y-2">
-            <div className="flex items-center space-x-2">
-              <input
-                type="radio"
-                id="registered"
-                checked={isRegistered}
-                onChange={() => setIsRegistered(true)}
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-              />
-              <label htmlFor="registered" className="text-sm text-gray-700">
-                I have a registered business
-              </label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <input
-                type="radio"
-                id="unregistered"
-                checked={!isRegistered}
-                onChange={() => setIsRegistered(false)}
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-              />
-              <label htmlFor="unregistered" className="text-sm text-gray-700">
-                I don't have a registered business
-              </label>
-            </div>
+            {error && <p className="text-red-500 text-sm">{error}</p>}
           </div>
 
           <div className="flex gap-4">
-            <button
-              type="button"
-              onClick={onBack}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-            >
+            <Button type="button" onClick={onBack} className="w-full border">
               Back
-            </button>
-            <button
-              type="submit"
-              className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-            >
+            </Button>
+            <Button type="submit" className="w-full bg-black text-white">
               Next
-            </button>
+            </Button>
           </div>
         </form>
       </div>

@@ -1,6 +1,16 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { statesData, type State } from "@/lib/india-data";
 
 interface BusinessFormProps {
@@ -39,15 +49,15 @@ export default function BusinessForm({ onSubmit, onBack }: BusinessFormProps) {
 
   useEffect(() => {
     if (selectedState) {
-      setCities(statesData[selectedState as State]);
+      setCities([...statesData[selectedState as State]]);
       setShowCustomCity(false);
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
         address: {
           ...prev.address,
           state: selectedState,
-          city: ""
-        }
+          city: "",
+        },
       }));
     }
   }, [selectedState]);
@@ -78,25 +88,24 @@ export default function BusinessForm({ onSubmit, onBack }: BusinessFormProps) {
     }
   };
 
-  const handleCitySelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const value = e.target.value;
+  const handleCitySelect = (value: string) => {
     if (value === "other") {
       setShowCustomCity(true);
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
         address: {
           ...prev.address,
-          city: ""
-        }
+          city: "",
+        },
       }));
     } else {
       setShowCustomCity(false);
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
         address: {
           ...prev.address,
-          city: value
-        }
+          city: value,
+        },
       }));
     }
   };
@@ -114,122 +123,116 @@ export default function BusinessForm({ onSubmit, onBack }: BusinessFormProps) {
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-4">
             <div className="space-y-2">
-              <label htmlFor="storeName" className="block text-sm font-medium text-gray-700">
-                Enter your Store Name
-              </label>
-              <input
+              <Label htmlFor="storeName">Enter your Store Name</Label>
+              <Input
                 id="storeName"
                 value={formData.storeName}
                 onChange={(e) => handleInputChange(e, "storeName")}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 required
               />
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="category" className="block text-sm font-medium text-gray-700">
-                Select Product Category
-              </label>
-              <select
-                id="category"
-                value={formData.category}
-                onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                required
+              <Label htmlFor="category">Select Product Category</Label>
+              <Select
+                onValueChange={(value) =>
+                  setFormData((prev) => ({ ...prev, category: value }))
+                }
               >
-                <option value="">Choose Primary Product</option>
-                <option value="clothing">Clothing</option>
-                <option value="accessories">Accessories</option>
-                <option value="footwear">Footwear</option>
-              </select>
+                <SelectTrigger>
+                  <SelectValue placeholder="Choose Primary Product" />
+                </SelectTrigger>
+                <SelectContent className="z-[999]">
+                  <SelectItem value="clothing">Clothing</SelectItem>
+                  <SelectItem value="accessories">Accessories</SelectItem>
+                  <SelectItem value="footwear">Footwear</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700">Enter your Address</label>
-              <input
+              <Label>Enter your Address</Label>
+              <Input
                 placeholder="Pincode"
                 value={formData.address.pincode}
                 onChange={(e) => handleInputChange(e, "address", "pincode")}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 required
               />
-              <input
+              <Input
                 placeholder="Address Line 1"
                 value={formData.address.addressLine1}
-                onChange={(e) => handleInputChange(e, "address", "addressLine1")}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                onChange={(e) =>
+                  handleInputChange(e, "address", "addressLine1")
+                }
                 required
               />
-              <input
+              <Input
                 placeholder="Address Line 2"
                 value={formData.address.addressLine2}
-                onChange={(e) => handleInputChange(e, "address", "addressLine2")}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                onChange={(e) =>
+                  handleInputChange(e, "address", "addressLine2")
+                }
               />
-              
-              <select
+
+              <Select
                 value={selectedState}
-                onChange={(e) => setSelectedState(e.target.value as State)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                required
+                onValueChange={(value: State) => setSelectedState(value)}
               >
-                <option value="">Select State</option>
-                {Object.keys(statesData).map((state) => (
-                  <option key={state} value={state}>
-                    {state}
-                  </option>
-                ))}
-              </select>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select State" />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.keys(statesData).map((state) => (
+                    <SelectItem key={state} value={state}>
+                      {state}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
 
               {selectedState && (
-                <select
+                <Select
                   value={formData.address.city}
-                  onChange={handleCitySelect}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  required
+                  onValueChange={handleCitySelect}
                 >
-                  <option value="">Select City</option>
-                  {cities.map((city) => (
-                    <option key={city} value={city}>
-                      {city}
-                    </option>
-                  ))}
-                  <option value="other">Other City</option>
-                </select>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select City" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {cities.map((city) => (
+                      <SelectItem key={city} value={city}>
+                        {city}
+                      </SelectItem>
+                    ))}
+                    <SelectItem value="other">Other City</SelectItem>
+                  </SelectContent>
+                </Select>
               )}
 
               {showCustomCity && (
-                <input
+                <Input
                   placeholder="Enter City Name"
                   value={formData.address.city}
                   onChange={(e) => handleInputChange(e, "address", "city")}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   required
                 />
               )}
 
-              <input
+              <Input
                 value={formData.address.country}
                 disabled
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100"
+                className="bg-gray-100"
               />
             </div>
           </div>
 
           <div className="flex gap-4">
-            <button
-              type="button"
-              onClick={onBack}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-            >
+            <Button type="button" onClick={onBack} className="w-full">
               Back
-            </button>
-            <button
-              type="submit"
-              className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-            >
+            </Button>
+            <Button type="submit" className="w-full text-white bg-black">
               Continue
-            </button>
+            </Button>
           </div>
         </form>
       </div>

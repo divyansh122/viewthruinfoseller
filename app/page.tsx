@@ -24,12 +24,18 @@ export default function Home() {
     },
   });
 
-  const handleGSTSubmit = (gstData: { gstNumber: string; isRegistered: boolean }) => {
+  const handleGSTSubmit = (gstData: {
+    gstNumber: string;
+    isRegistered: boolean;
+  }) => {
     setFormData((prev) => ({ ...prev, gst: gstData }));
     setStep(2);
   };
 
-  const handlePANSubmit = (panData: { panNumber: string; isRegistered: boolean }) => {
+  const handlePANSubmit = (panData: {
+    panNumber: string;
+    isRegistered: boolean;
+  }) => {
     setFormData((prev) => ({ ...prev, pan: panData }));
     setStep(3);
   };
